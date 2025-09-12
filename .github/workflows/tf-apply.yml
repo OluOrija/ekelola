@@ -1,7 +1,7 @@
 name: Terraform Apply
 on:
   push:
-    branches: [ "infra/terraform" ]
+    branches: [ "main" ]
     paths: [ "infra/terraform/**" ]
 
 permissions:
