@@ -1,0 +1,27 @@
+{
+  "name": "ekelola",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@astrojs/mdx": "latest",
+    "@astrojs/tailwind": "latest",
+    "@astrojs/sitemap": "latest",
+    "@astrojs/rss": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "eslint": "latest",
+    "prettier": "latest",
+    "eslint-config-prettier": "latest",
+    "eslint-plugin-astro": "latest",
+    "eslint-plugin-import": "latest",
+    "prettier-plugin-astro": "latest"
+  }
+}
