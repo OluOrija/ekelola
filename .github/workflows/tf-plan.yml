@@ -1,0 +1,35 @@
+name: Terraform Plan
+on:
+  pull_request:
+    branches: [ "infra/terraform" ]
+    paths: [ "infra/terraform/**" ]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/prod
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TF_ROLE_ARN }}
+          aws-region: eu-west-2
+      - uses: hashicorp/setup-terraform@v3
+        with: { terraform_version: 1.9.5 }
+      - run: terraform init -input=false
+      - run: terraform fmt -check
+      - run: terraform validate
+      - id: plan
+        run: terraform plan -input=false -no-color -out=tfplan
+      - run: terraform show -no-color tfplan | tee plan.txt
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          path: infra/terraform/envs/prod/plan.txt
