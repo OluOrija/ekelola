@@ -1,8 +1,9 @@
-name: Build and Deploy (Static)
+name: Deploy Frontend Site (Static)
 
 on:
   push:
     branches: [ "main" ]
+    paths: [ "frontend/astro/**" ]
 
 jobs:
   build:
