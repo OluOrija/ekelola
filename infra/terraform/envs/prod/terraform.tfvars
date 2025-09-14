@@ -1,4 +1,5 @@
 project_name          = "ekelola"
+root_domain           = "ekelola.com"
 domain_name           = "ekelola.com"
 alternate_domain_name = "www.ekelola.com"
 hosted_zone_id        = "Z06380262J4UOUP4EPARD" # replace with actual

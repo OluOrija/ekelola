@@ -1,4 +1,5 @@
 variable "project_name" { type = string }
+variable "root_domain" { type = string }
 variable "domain_name" { type = string }
 variable "alternate_domain_name" { type = string }
 variable "hosted_zone_id" { type = string }

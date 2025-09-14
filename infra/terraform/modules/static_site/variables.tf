@@ -10,3 +10,7 @@ variable "enable_www_redirect" {
   type        = bool
   default     = true
 }
+variable "root_domain" {
+  description = "Apex/root domain (zone name), e.g. ekelola.com."
+  type        = string
+}

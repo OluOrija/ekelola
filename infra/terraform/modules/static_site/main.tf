@@ -15,6 +15,15 @@ resource "aws_s3_bucket" "logs" {
   tags          = local.tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+
+
 resource "aws_s3_bucket_versioning" "logs" {
   bucket = aws_s3_bucket.logs.id
   versioning_configuration { status = "Enabled" }
@@ -31,9 +40,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
 
 resource "aws_s3_bucket_public_access_block" "logs" {
   bucket                  = aws_s3_bucket.logs.id
-  block_public_acls       = true
+  block_public_acls       = false
   block_public_policy     = true
-  ignore_public_acls      = true
+  ignore_public_acls      = false
   restrict_public_buckets = true
 }
 
@@ -159,11 +168,16 @@ resource "aws_cloudfront_distribution" "site" {
     prefix          = "cloudfront/"
   }
 
-  origins {
+  origin {
     domain_name = aws_s3_bucket.site_bucket.bucket_regional_domain_name
     origin_id   = "s3-origin"
     s3_origin_config {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
+    }
+  }
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
     }
   }
 
@@ -176,6 +190,13 @@ resource "aws_cloudfront_distribution" "site" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
 
     # Conditionally attach www→apex redirect
     dynamic "function_association" {
