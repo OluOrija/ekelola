@@ -3,14 +3,11 @@ name: Deploy Frontend Site (Static)
 on:
   push:
     branches:
+      - phase3_content-pipeline-test
       - main
-    paths:
-      - "frontend/astro/**"
   pull_request:
     branches:
       - main
-    paths:
-      - "frontend/astro/**"      
   workflow_dispatch:
 
 permissions:
