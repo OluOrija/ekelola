@@ -1,5 +1,7 @@
 locals { tags = { Project = var.project_name, ManagedBy = "terraform-bootstrap" } }
 
+data "aws_caller_identity" "current" {}
+
 # S3 tfstate bucket
 resource "aws_s3_bucket" "tfstate" {
   bucket        = var.state_bucket
@@ -118,6 +120,17 @@ data "aws_iam_policy_document" "tf_policy" {
     sid       = "IAMRead"
     actions   = ["iam:GetRole", "iam:GetPolicy", "iam:GetPolicyVersion", "iam:ListRolePolicies", "iam:ListAttachedRolePolicies"]
     resources = ["*"]
+  }
+  statement {
+    sid       = "SecretsManagerContentPAT"
+    actions   = [
+      "secretsmanager:CreateSecret",
+      "secretsmanager:UpdateSecret",
+      "secretsmanager:PutSecretValue",
+      "secretsmanager:DescribeSecret",
+      "secretsmanager:TagResource"
+    ]
+  resources = ["arn:aws:secretsmanager:eu-west-2:${data.aws_caller_identity.current.account_id}:secret:ekelola/github/pat_content_sync-*"]
   }
 }
 resource "aws_iam_policy" "tf_policy" {
