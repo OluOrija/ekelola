@@ -1,4 +1,8 @@
+# Astro
 node_modules
+.astro
+dist
+.env
 .astro
 # Terraform
 .terraform/
@@ -13,3 +17,4 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 *.out
+

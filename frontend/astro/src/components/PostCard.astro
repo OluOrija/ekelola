@@ -1,0 +1,12 @@
+---
+import type { CollectionEntry } from "astro:content";
+const { post } = Astro.props as { post: CollectionEntry<"posts"> };
+const { data, slug } = post;
+---
+<article class="space-y-2">
+  <h2 class="text-xl font-semibold">
+    <a href={`/blog/${slug}`} class="hover:underline">{data.title}</a>
+  </h2>
+  <p class="text-sm text-zinc-600">{new Date(data.date).toLocaleDateString()}</p>
+  <p>{data.description}</p>
+</article>

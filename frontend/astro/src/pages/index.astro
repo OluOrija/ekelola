@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import PostCard from "../components/PostCard.astro";
+
+const posts = (await getCollection("posts"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => +new Date(b.data.date) - +new Date(a.data.date))
+  .slice(0, 6);
+---
+<BaseLayout title="ekelola — AI • Tech • Mind">
+  <section class="space-y-6">
+    <h1 class="text-3xl font-bold">ekelola — AI • Tech • Mind</h1>
+    <p class="text-zinc-700">Exploring AI-powered articles, tech insights, and curated ideas.</p>
+  </section>
+  <section class="mt-8 grid gap-8">
+    {posts.map((post) => <PostCard post={post} />)}
+  </section>
+</BaseLayout>
