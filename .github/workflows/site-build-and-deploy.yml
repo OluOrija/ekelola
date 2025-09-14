@@ -3,7 +3,6 @@ name: Deploy Frontend Site (Static)
 on:
   push:
     branches:
-      - phase3_content-pipeline-test
       - main
   pull_request:
     branches:
