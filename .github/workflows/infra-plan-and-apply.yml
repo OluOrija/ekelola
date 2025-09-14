@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      #- infra/terraform
-      - infra/content-pipeline
   pull_request:
     branches:
       - main
