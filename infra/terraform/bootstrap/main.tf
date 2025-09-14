@@ -88,7 +88,13 @@ data "aws_iam_policy_document" "tf_policy" {
   }
   statement {
     sid       = "Route53"
-    actions   = ["route53:ListHostedZones", "route53:GetHostedZone", "route53:ListResourceRecordSets", "route53:ChangeResourceRecordSets"]
+    actions   = [
+      "route53:ListHostedZones",
+      "route53:GetHostedZone",
+      "route53:ListResourceRecordSets",
+      "route53:ChangeResourceRecordSets",
+      "route53:ListTagsForResource"
+    ]
     resources = ["*"]
     # Optionally scope ChangeResourceRecordSets to hosted zone:
     # resources = ["arn:aws:route53:::hostedzone/${var.hosted_zone_id}"]
