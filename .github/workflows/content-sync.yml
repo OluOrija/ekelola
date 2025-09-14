@@ -1,4 +1,4 @@
-name: Content Sync (S3 → Repo)
+name: Content Sync
 
 on:
   workflow_dispatch:
@@ -19,16 +19,13 @@ jobs:
     env:
       AWS_REGION: eu-west-2
       LIVE_BUCKET: ekelola-prod-content-live
-      # If your validator writes under a subfolder (recommended to avoid loops),
-      # set: VALIDATED_PREFIX: validated/
-      VALIDATED_PREFIX: ""
+      VALIDATED_PREFIX: validated/   # "" if you skipped the prefix
       CONTENT_DIR: src/content/posts
 
     steps:
       - name: Checkout (full history)
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -36,48 +33,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_TF_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: caller identity
-        shell: bash
-        run: |
-          set -euo pipefail
-          aws sts get-caller-identity
-
       - name: Ensure content dir
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p "$CONTENT_DIR"
 
-      - name: List S3 path
+      - name: Sync MDX from S3 → repo
         shell: bash
         run: |
           set -euo pipefail
           SRC="s3://${LIVE_BUCKET}/${VALIDATED_PREFIX}"
           SRC="${SRC//\/\//\/}"
-          echo "Listing ${SRC}"
-          aws s3 ls "${SRC}" --recursive || true
-
-      - name: Sync MDX from S3 (live → repo)
-        shell: bash
-        run: |
-          set -euo pipefail
-          SRC="s3://${LIVE_BUCKET}/${VALIDATED_PREFIX}"
-          SRC="${SRC//\/\//\/}"
-          DST="${CONTENT_DIR}/"
-          echo "Syncing from ${SRC} to ${DST}"
-          aws s3 sync "${SRC}" "${DST}" \
+          aws s3 sync "${SRC}" "${CONTENT_DIR}/" \
             --exclude "*" --include "*.mdx" --include "*.MDX" --delete
-
-      - name: Show content dir & git status
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo "Content dir:"
-          ls -laR "${CONTENT_DIR}" || true
-          echo "Git status:"
-          git status --porcelain || true
-          echo "Git diff names:"
-          git diff --name-only || true
 
       - name: Commit changes to PR branch (if any)
         id: commit
@@ -86,12 +55,10 @@ jobs:
           set -euo pipefail
           git config user.name "ekelola-bot"
           git config user.email "bot@users.noreply.github.com"
-
           if [ -z "$(git status --porcelain)" ]; then
             echo "no_changes=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-
           BR="content/auto-$(date +%Y%m%d-%H%M%S)"
           git checkout -b "$BR"
           git add "$CONTENT_DIR"
@@ -118,16 +85,4 @@ jobs:
               base: "main",
               body: "Automated content sync from S3 live bucket."
             });
-            core.info(`PR #${res.data.number} opened for ${branch}.`);
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install & Build
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm ci
-          npm run build
+            core.info(`PR #${res.data.number} opened.`);
