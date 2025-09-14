@@ -2,8 +2,16 @@ name: Deploy Frontend Site (Static)
 
 on:
   push:
-    branches: [ "main" ]
-    paths: [ "frontend/astro/**" ]
+    branches:
+      - main
+    paths:
+      - "frontend/astro/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/astro/**"      
+  workflow_dispatch:
 
 jobs:
   build:
@@ -22,6 +30,7 @@ jobs:
           path: ./dist
 
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     permissions:
       pages: write

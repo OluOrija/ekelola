@@ -2,8 +2,10 @@ name: Build Frontend Site (Static)
 
 on:
   pull_request:
-    branches: [ "main" ]
-    paths: [ "frontend/astro/**" ]
+    branches: 
+      - "main"
+    paths: 
+      - "frontend/astro/**"
 
 jobs:
   build:
