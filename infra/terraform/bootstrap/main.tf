@@ -68,8 +68,13 @@ data "aws_iam_policy_document" "assume_role" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:${var.allowed_ref_branch1}"]
-    }    
+      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:${var.allowed_ref_allbranches}"]
+    }  
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.github_owner}/${var.github_repo}:pull_request"]
+    }        
   }
 }
 resource "aws_iam_role" "tf_role" {
@@ -135,8 +140,17 @@ data "aws_iam_policy_document" "tf_policy" {
     ]
     resources = [
       "arn:aws:s3:::${var.site_bucket_name}",
+      "arn:aws:s3:::${var.site_bucket_name}/*",
       "arn:aws:s3:::${var.logs_bucket_name}",
-      aws_s3_bucket.tfstate.arn
+      "arn:aws:s3:::${var.logs_bucket_name}/*",
+      aws_s3_bucket.tfstate.arn,
+      "${aws_s3_bucket.tfstate.arn}/*",
+      "arn:aws:s3:::${var.site_content_incoming_bucket_name}",
+      "arn:aws:s3:::${var.site_content_incoming_bucket_name}/*",
+      "arn:aws:s3:::${var.site_content_live_bucket_name}",
+      "arn:aws:s3:::${var.site_content_live_bucket_name}/*",
+      "arn:aws:s3:::${var.site_content_rejected_bucket_name}",
+      "arn:aws:s3:::${var.site_content_rejected_bucket_name}/*"
     ]
   }
   statement {
