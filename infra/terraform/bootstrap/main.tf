@@ -63,8 +63,13 @@ data "aws_iam_policy_document" "assume_role" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:${var.allowed_ref}"]
+      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:${var.allowed_ref_main}"]
     }
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:${var.allowed_ref_branch1}"]
+    }    
   }
 }
 resource "aws_iam_role" "tf_role" {
