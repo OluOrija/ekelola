@@ -1,0 +1,85 @@
+name: Content Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Trigger reason"
+        required: false
+        default: "content-update"
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  sync-and-build:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-west-2
+      LIVE_BUCKET: ekelola-prod-content-live
+      CONTENT_DIR: src/content/posts
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_TF_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Ensure content dir
+        run: mkdir -p "${{ env.CONTENT_DIR }}"
+
+      - name: Sync MDX from S3 (live)
+        run: |
+          aws s3 sync "s3://${{ env.LIVE_BUCKET }}/" "${{ env.CONTENT_DIR }}/" --exclude "*" --include "*.mdx" --delete
+
+      - name: Commit changes to PR branch (if any)
+        run: |
+          git config user.name "ekelola-bot"
+          git config user.email "bot@users.noreply.github.com"
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          BR="content/auto-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BR"
+          git add "${{ env.CONTENT_DIR }}"
+          git commit -m "Content sync: ${{ github.event.inputs.reason }}"
+          git push origin "$BR"
+          echo "BR=$BR" >> $GITHUB_ENV
+
+      - name: Open PR
+        if: env.BR != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = process.env.BR;
+            if (!branch) { core.info("No branch to open PR"); return; }
+            const res = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Content sync ${new Date().toISOString()}`,
+              head: branch,
+              base: "main",
+              body: "Automated content sync from S3 live bucket."
+            });
+            core.info(`PR #${res.data.number} opened.`);
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & Build
+        run: |
+          npm ci
+          npm run build
+
+      # Optional: Deploy step if not already covered in Phase 2 workflow
+      # - name: Deploy
+      #   run: npm run deploy

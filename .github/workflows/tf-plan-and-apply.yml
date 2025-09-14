@@ -62,6 +62,35 @@ jobs:
           terraform_version: 1.9.5
       - run: terraform init -input=false
       - run: terraform apply -input=false -auto-approve
+      - name: Set Secrets Manager value for content-sync PAT
+        if: ${{ success() }}
+        env:
+          AWS_REGION: eu-west-2
+          SECRET_NAME: ekelola/github/pat_content_sync
+          SECRET_VALUE: ${{ secrets.CONTENT_SYNC_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SECRET_VALUE:-}" ]; then
+            echo "ERROR: CONTENT_SYNC_PAT is not set in repo secrets." >&2
+            exit 1
+          fi
+
+          if aws secretsmanager describe-secret --region "$AWS_REGION" --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
+            aws secretsmanager put-secret-value \
+              --region "$AWS_REGION" \
+              --secret-id "$SECRET_NAME" \
+              --secret-string "$SECRET_VALUE" \
+              --no-cli-pager
+            echo "Updated secret value for $SECRET_NAME"
+          else
+            aws secretsmanager create-secret \
+              --region "$AWS_REGION" \
+              --name "$SECRET_NAME" \
+              --secret-string "$SECRET_VALUE" \
+              --tags Key=Project,Value=ekelola Key=Env,Value=prod Key=Stack,Value=content-pipeline \
+              --no-cli-pager
+            echo "Created secret $SECRET_NAME"
+          fi
 
   manual-apply:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/infra/terraform'
@@ -82,3 +111,32 @@ jobs:
           terraform_version: 1.9.5
       - run: terraform init -input=false
       - run: terraform apply -input=false -auto-approve
+      - name: Set Secrets Manager value for content-sync PAT
+        if: ${{ success() }}
+        env:
+          AWS_REGION: eu-west-2
+          SECRET_NAME: ekelola/github/pat_content_sync
+          SECRET_VALUE: ${{ secrets.CONTENT_SYNC_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SECRET_VALUE:-}" ]; then
+            echo "ERROR: CONTENT_SYNC_PAT is not set in repo secrets." >&2
+            exit 1
+          fi
+
+          if aws secretsmanager describe-secret --region "$AWS_REGION" --secret-id "$SECRET_NAME" >/dev/null 2>&1; then
+            aws secretsmanager put-secret-value \
+              --region "$AWS_REGION" \
+              --secret-id "$SECRET_NAME" \
+              --secret-string "$SECRET_VALUE" \
+              --no-cli-pager
+            echo "Updated secret value for $SECRET_NAME"
+          else
+            aws secretsmanager create-secret \
+              --region "$AWS_REGION" \
+              --name "$SECRET_NAME" \
+              --secret-string "$SECRET_VALUE" \
+              --tags Key=Project,Value=ekelola Key=Env,Value=prod Key=Stack,Value=content-pipeline \
+              --no-cli-pager
+            echo "Created secret $SECRET_NAME"
+          fi      

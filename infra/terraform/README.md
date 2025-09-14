@@ -32,10 +32,32 @@ terraform apply plan.out
 - Apply runs on push to infra/terraform branch
 
 ## Acceptance
-- S3 site/logs buckets in eu-west-2, block public access, versioning + SSE
-- CloudFront distribution with aliases, TLSv1.2_2021, gzip/brotli, error mapping
-- ACM cert in us-east-1 validated via Route53
-- Route53 A-alias records for apex and www
-- Conditional www→apex redirect
-- Remote state S3+DynamoDB, GitHub OIDC role, AWS_TF_ROLE_ARN secret
-- App CI can publish dist/ to ekelola-site and invalidate CloudFront
+ S3 site/logs buckets in eu-west-2, block public access, versioning + SSE
+ CloudFront distribution with aliases, TLSv1.2_2021, gzip/brotli, error mapping
+ ACM cert in us-east-1 validated via Route53
+ Route53 A-alias records for apex and www
+ Conditional www→apex redirect
+ Remote state S3+DynamoDB, GitHub OIDC role, AWS_TF_ROLE_ARN secret
+ App CI can publish dist/ to ekelola-site and invalidate CloudFront
+
+---
+
+## Content Pipeline Module Usage (infra/terraform/modules/content-pipeline)
+
+### Setting the GitHub PAT Secret
+- Go to AWS Secrets Manager in the AWS Console.
+- Create a secret named `ekelola/github/pat_content_sync`.
+- Set the secret value to your GitHub Personal Access Token (PAT) with scopes: `repo`, `workflow`.
+- The Lambda will read this secret to trigger GitHub Actions.
+
+### Packaging Lambda Functions
+- Before running `terraform apply`, run:
+	```bash
+	bash infra/terraform/modules/content-pipeline/lambda_src/package.sh
+	```
+- This will create the required Lambda zip files for deployment.
+
+### Expected S3 Bucket Names
+- `ekelola-prod-content-incoming`
+- `ekelola-prod-content-live`
+- `ekelola-prod-content-rejected`
