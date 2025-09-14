@@ -188,6 +188,14 @@ data "aws_iam_policy_document" "tf_policy" {
     resources = ["arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:*"]
   }
   statement {
+    sid       = "CloudWatchListTags"
+    actions   = ["logs:ListTagsForResource"]
+    resources = [
+      "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/ekelola-prod-validate-mdx",
+      "arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/ekelola-prod-trigger-deploy"
+    ]
+  }  
+  statement {
     sid       = "LambdaGetFunction"
     actions   = ["lambda:GetFunction"]
     resources = [
@@ -195,6 +203,14 @@ data "aws_iam_policy_document" "tf_policy" {
       "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
     ]
   }  
+  statement {
+    sid       = "LambdaListVersions"
+    actions   = ["lambda:ListVersionsByFunction"]
+    resources = [
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-trigger-deploy",
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
+    ]
+  }
 }
 resource "aws_iam_policy" "tf_policy" {
   name   = "${var.project_name}-terraform-gha-policy"
