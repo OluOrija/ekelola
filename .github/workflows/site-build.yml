@@ -10,6 +10,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/astro
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,10 +20,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-        working-directory: frontend/astro
       - run: npm run build
-        working-directory: frontend/astro
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: frontend/astro/dist
+          path: ./dist
