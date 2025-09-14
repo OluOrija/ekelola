@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - "infra/terraform"
-    paths:
-      - "infra/terraform/**"
+    # paths:
+    #   - "infra/terraform/**"
   pull_request:
     branches:
       - "main"
-    paths:
-      - "infra/terraform/**"
+    # paths:
+    #   - "infra/terraform/**"
 
 permissions:
   id-token: write
