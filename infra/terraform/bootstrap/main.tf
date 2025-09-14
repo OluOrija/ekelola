@@ -127,6 +127,24 @@ data "aws_iam_policy_document" "tf_policy" {
     resources = ["*"]
   }
   statement {
+    sid       = "S3ReadConfig"
+    actions   = [
+      "s3:GetBucketVersioning",
+      "s3:GetBucketPublicAccessBlock",
+      "s3:GetLifecycleConfiguration"
+    ]
+    resources = [
+      "arn:aws:s3:::${var.site_bucket_name}",
+      "arn:aws:s3:::${var.logs_bucket_name}",
+      aws_s3_bucket.tfstate.arn
+    ]
+  }
+  statement {
+    sid       = "KMSDescribe"
+    actions   = ["kms:DescribeKey"]
+    resources = ["arn:aws:kms:eu-west-2:${data.aws_caller_identity.current.account_id}:key/*"]
+  }
+  statement {
     sid       = "SecretsManagerContentPAT"
     actions   = [
       "secretsmanager:CreateSecret",
