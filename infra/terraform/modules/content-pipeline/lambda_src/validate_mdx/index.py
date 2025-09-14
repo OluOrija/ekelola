@@ -21,7 +21,9 @@ def parse_frontmatter(text: str) -> dict:
     return out
 
 def copy_to(bucket: str, src_bucket: str, key: str):
-    s3.copy_object(Bucket=bucket, CopySource={"Bucket": src_bucket, "Key": key}, Key=key, MetadataDirective="COPY")
+    dst_key = f"validated/{key}" if not key.startswith("validated/") else key
+    s3.copy_object(Bucket=bucket, CopySource={"Bucket": src_bucket, "Key": key}, Key=dst_key, MetadataDirective="COPY")
+
 
 def delete_from(bucket: str, key: str):
     s3.delete_object(Bucket=bucket, Key=key)
