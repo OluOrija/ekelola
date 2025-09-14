@@ -223,6 +223,14 @@ data "aws_iam_policy_document" "tf_policy" {
       "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
     ]
   }
+  statement {
+    sid       = "LambdaGetPolicy"
+    actions   = ["lambda:GetPolicy"]
+    resources = [
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-trigger-deploy",
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
+    ]
+  }  
 }
 resource "aws_iam_policy" "tf_policy" {
   name   = "${var.project_name}-terraform-gha-policy"
