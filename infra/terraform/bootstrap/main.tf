@@ -182,6 +182,19 @@ data "aws_iam_policy_document" "tf_policy" {
       actions   = ["sqs:GetQueueAttributes", "sqs:ListQueueTags"]
     resources = ["arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:*"]
   }
+  statement {
+    sid       = "CloudWatchDescribe"
+    actions   = ["logs:DescribeLogGroups"]
+    resources = ["arn:aws:logs:eu-west-2:${data.aws_caller_identity.current.account_id}:log-group:*"]
+  }
+  statement {
+    sid       = "LambdaGetFunction"
+    actions   = ["lambda:GetFunction"]
+    resources = [
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-trigger-deploy",
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
+    ]
+  }  
 }
 resource "aws_iam_policy" "tf_policy" {
   name   = "${var.project_name}-terraform-gha-policy"
