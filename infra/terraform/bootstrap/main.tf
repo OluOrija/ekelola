@@ -155,7 +155,7 @@ data "aws_iam_policy_document" "tf_policy" {
   }
   statement {
     sid       = "KMSDescribe"
-    actions   = ["kms:DescribeKey"]
+    actions   = ["kms:DescribeKey", "kms:GetKeyPolicy"]
     resources = ["arn:aws:kms:eu-west-2:${data.aws_caller_identity.current.account_id}:key/*"]
   }
   statement {
