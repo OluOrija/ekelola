@@ -85,6 +85,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "lc_incoming" {
   rule {
     id     = "expire-noncurrent"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -95,6 +98,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "lc_live" {
   rule {
     id     = "expire-noncurrent"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -105,6 +111,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "lc_rejected" {
   rule {
     id     = "expire-noncurrent"
     status = "Enabled"
+    filter {
+      prefix = ""
+    }
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
