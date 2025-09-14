@@ -156,14 +156,26 @@ data "aws_iam_policy_document" "tf_policy" {
   }
   statement {
     sid       = "KMSDescribe"
-      actions   = [
-          "kms:DescribeKey", 
-          "kms:GetKeyPolicy", 
-          "kms:GetKeyRotationStatus", 
-          "kms:ListResourceTags",
-          "kms:ListAliases"
+    actions   = [
+      "kms:DescribeKey",
+      "kms:GetKeyPolicy",
+      "kms:GetKeyRotationStatus",
+      "kms:ListResourceTags"
     ]
     resources = ["arn:aws:kms:eu-west-2:${data.aws_caller_identity.current.account_id}:key/*"]
+  }
+  statement {
+    sid       = "KMSListAliases"
+    actions   = ["kms:ListAliases"]
+    resources = ["*"]
+  }
+  statement {
+    sid       = "LambdaGetCodeSigningConfig"
+    actions   = ["lambda:GetFunctionCodeSigningConfig"]
+    resources = [
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-trigger-deploy",
+      "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
+    ]
   }
   statement {
     sid       = "SecretsManagerContentPAT"
