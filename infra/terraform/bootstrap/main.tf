@@ -231,6 +231,14 @@ data "aws_iam_policy_document" "tf_policy" {
       "arn:aws:lambda:eu-west-2:${data.aws_caller_identity.current.account_id}:function:ekelola-prod-validate-mdx"
     ]
   }  
+  statement {
+    sid       = "S3GetBucketNotification"
+    actions   = ["s3:GetBucketNotification"]
+    resources = [
+      "arn:aws:s3:::ekelola-prod-content-incoming",
+      "arn:aws:s3:::ekelola-prod-content-live"
+    ]
+  }  
 }
 resource "aws_iam_policy" "tf_policy" {
   name   = "${var.project_name}-terraform-gha-policy"
