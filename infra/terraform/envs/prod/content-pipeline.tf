@@ -14,5 +14,5 @@ module "content_pipeline" {
 }
 
 output "incoming_bucket" { value = module.content_pipeline.incoming_bucket }
-output "live_bucket"     { value = module.content_pipeline.live_bucket }
+output "live_bucket" { value = module.content_pipeline.live_bucket }
 output "rejected_bucket" { value = module.content_pipeline.rejected_bucket }
