@@ -1,23 +1,26 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
-import { Markdown } from "astro/components";
+import { getCollection, type CollectionEntry } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("posts");
-  return posts.filter(p => !p.data.draft).map((post) => ({
+  const posts = await getCollection("posts"); // <- correct collection name
+  return posts.map((post) => ({
     params: { slug: post.slug },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
-const { data, body } = post;
+const { Content, headings } = await post.render();
 ---
-<BaseLayout title={`${data.title} — ekelola`} description={data.description}>
-  <article class="prose max-w-none">
-    <h1>{data.title}</h1>
-    <p class="text-sm text-zinc-600">{new Date(data.date).toLocaleDateString()}</p>
-    <Markdown content={body} />
+
+<BaseLayout title={post.data.title}>
+  <article>
+    <header>
+      <h1>{post.data.title}</h1>
+  {post.data.date && <time datetime={typeof post.data.date === 'string' ? post.data.date : post.data.date.toISOString?.() ?? post.data.date}>{typeof post.data.date === 'string' ? post.data.date : post.data.date.toLocaleDateString()}</time>}
+    </header>
+
+    <Content />   {/* <- this renders the markdown */}
   </article>
 </BaseLayout>
