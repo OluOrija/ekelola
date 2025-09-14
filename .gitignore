@@ -5,6 +5,7 @@ node_modules
 *.tfstate
 *.tfstate.*
 crash.log
+tfplan
 *.tfplan
 .terraform.lock.hcl
 override.tf

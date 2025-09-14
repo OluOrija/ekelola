@@ -34,6 +34,10 @@ data "aws_iam_policy_document" "validate_policy" {
     actions   = ["logs:CreateLogGroup","logs:CreateLogStream","logs:PutLogEvents"]
     resources = ["*"]
   }
+    statement {
+      actions   = ["sqs:SendMessage"]
+      resources = [aws_sqs_queue.dlq.arn]
+    }
   statement {
     actions   = ["kms:Decrypt","kms:Encrypt","kms:GenerateDataKey"]
     resources = [aws_kms_key.content.arn]
