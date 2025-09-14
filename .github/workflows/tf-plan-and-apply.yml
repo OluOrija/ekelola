@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - infra/terraform
+      - infra/content-pipeline
   pull_request:
     branches:
       - main
@@ -17,7 +18,7 @@ permissions:
 
 jobs:
   plan:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/infra/terraform' || github.event_name == 'pull_request'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/infra/**' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -93,7 +94,7 @@ jobs:
           fi
 
   manual-apply:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/infra/terraform'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/infra/**'
     runs-on: ubuntu-latest
     needs: plan
     defaults:
