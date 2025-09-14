@@ -136,7 +136,8 @@ data "aws_iam_policy_document" "tf_policy" {
     actions   = [
       "s3:GetBucketVersioning",
       "s3:GetBucketPublicAccessBlock",
-      "s3:GetLifecycleConfiguration"
+      "s3:GetLifecycleConfiguration",
+      "s3:GetEncryptionConfiguration"
     ]
     resources = [
       "arn:aws:s3:::${var.site_bucket_name}",
@@ -170,9 +171,15 @@ data "aws_iam_policy_document" "tf_policy" {
       "secretsmanager:UpdateSecret",
       "secretsmanager:PutSecretValue",
       "secretsmanager:DescribeSecret",
-      "secretsmanager:TagResource"
+      "secretsmanager:TagResource",
+      "secretsmanager:GetResourcePolicy"
     ]
-  resources = ["arn:aws:secretsmanager:eu-west-2:${data.aws_caller_identity.current.account_id}:secret:ekelola/github/pat_content_sync-*"]
+    resources = ["arn:aws:secretsmanager:eu-west-2:${data.aws_caller_identity.current.account_id}:secret:ekelola/github/pat_content_sync-*"]
+  }
+  statement {
+    sid       = "SQSGetAttributes"
+    actions   = ["sqs:GetQueueAttributes"]
+    resources = ["arn:aws:sqs:eu-west-2:${data.aws_caller_identity.current.account_id}:*"]
   }
 }
 resource "aws_iam_policy" "tf_policy" {
