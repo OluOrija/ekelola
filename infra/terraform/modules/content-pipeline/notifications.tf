@@ -34,6 +34,7 @@ resource "aws_s3_bucket_notification" "live_notify" {
   lambda_function {
     lambda_function_arn = aws_lambda_function.trigger.arn
     events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "validated/"
     filter_suffix       = ".mdx"
   }
 
