@@ -4,7 +4,7 @@ import { getPaginatedPosts } from "../../lib/content";
 import PostCard from "../../components/PostCard.astro";
 
 const { page } = Astro.params;
-const pageSizeOptions = [5, 10, 15, 25, 50];
+const pageSizeOptions = [3, 5, 10, 15, 25, 50];
 const pageSize = Number(Astro.url.searchParams.get('pageSize')) || 5;
 
 const { posts: paginatedPosts, totalPages } = await getPaginatedPosts(Number(page), pageSize);
