@@ -1,0 +1,15 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllTags, slugifyTag } from "../../lib/content";
+const tags = await getAllTags();
+---
+<BaseLayout title="Tags">
+  <h1>Tags</h1>
+  <ul>
+    {Object.entries(tags).map(([slug, { count, original }]) => (
+      <li>
+        <a href={`/tags/${slug}/`}>{original}</a> ({count})
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

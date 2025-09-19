@@ -1,0 +1,9 @@
+---
+const { title, description, canonical } = Astro.props;
+const site = Astro.site?.toString() ?? "";
+---
+<title>{title}</title>
+<meta name="description" content={description} />
+{canonical && <link rel="canonical" href={canonical} />}
+<link rel="alternate" type="application/rss+xml" href={site + "/rss.xml"} title="RSS" />
+<!-- Add OG/Twitter meta tags as needed -->

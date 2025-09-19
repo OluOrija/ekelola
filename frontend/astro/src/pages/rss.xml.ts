@@ -1,12 +1,14 @@
 import rss from "@astrojs/rss";
-import { getCollection } from "astro:content";
+import { getAllPosts } from "../lib/content";
 
-export async function GET(context) {
-  const posts = (await getCollection("posts")).filter((p) => !p.data.draft);
+import type { APIRoute } from "astro";
+
+export const GET: APIRoute = async (context) => {
+  const posts = (await getAllPosts()).slice(0, 30);
   return rss({
     title: "ekelola",
     description: "AI • Tech • Mind",
-    site: context.site,
+    site: String(context.site),
     items: posts.map((p) => ({
       title: p.data.title,
       pubDate: new Date(p.data.date),
@@ -14,4 +16,4 @@ export async function GET(context) {
       link: `/blog/${p.slug}`,
     })),
   });
-}
+};

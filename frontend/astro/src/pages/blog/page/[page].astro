@@ -1,0 +1,48 @@
+export const prerender = false;
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import PostCard from "../../../components/PostCard.astro";
+
+const { page } = Astro.params;
+const pageSizeOptions = [5, 10, 15, 25, 50];
+const pageSize = Number(Astro.url.searchParams.get('pageSize')) || 5;
+
+const posts = (await getCollection("posts"))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => new Date(b.data.date) - new Date(a.data.date));
+
+const totalPages = Math.ceil(posts.length / pageSize);
+const currentPage = Math.max(1, Math.min(Number(page), totalPages));
+const paginatedPosts = posts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+function getPageUrl(pageNum) {
+  const params = new URLSearchParams(Astro.url.searchParams);
+  params.set('pageSize', pageSize);
+  return `/blog/page/${pageNum}?${params.toString()}`;
+}
+
+const prevUrl = currentPage > 1 ? getPageUrl(currentPage - 1) : null;
+const nextUrl = currentPage < totalPages ? getPageUrl(currentPage + 1) : null;
+---
+<BaseLayout title="Blog — ekelola">
+  <h1 class="text-2xl font-bold mb-6">Blog</h1>
+  <form method="get" class="mb-4">
+    <label for="pageSize" class="mr-2">Posts per page:</label>
+    <select id="pageSize" name="pageSize" onchange="this.form.submit()" value={pageSize}>
+      {pageSizeOptions.map(opt => <option value={opt} selected={opt === pageSize}>{opt}</option>)}
+    </select>
+  </form>
+  <div class="grid gap-8">
+    {paginatedPosts.map((post) => <PostCard post={post} />)}
+  </div>
+  <nav class="flex justify-between mt-8">
+    {currentPage > 1 ? (
+      <a href={getPageUrl(currentPage - 1)} class="btn">Previous</a>
+    ) : <span />}
+    <span>Page {currentPage} of {totalPages}</span>
+    {currentPage < totalPages ? (
+      <a href={getPageUrl(currentPage + 1)} class="btn">Next</a>
+    ) : <span />}
+  </nav>
+</BaseLayout>

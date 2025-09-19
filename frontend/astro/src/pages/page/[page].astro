@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getPaginatedPosts } from "../../lib/content";
+import PostCard from "../../components/PostCard.astro";
+
+const { page } = Astro.params;
+const pageSizeOptions = [5, 10, 15, 25, 50];
+const pageSize = Number(Astro.url.searchParams.get('pageSize')) || 5;
+
+const { posts: paginatedPosts, totalPages } = await getPaginatedPosts(Number(page), pageSize);
+const currentPage = Math.max(1, Math.min(Number(page), totalPages));
+
+function getPageUrl(pageNum) {
+	const params = new URLSearchParams(Astro.url.searchParams);
+	params.set('pageSize', pageSize);
+	return `/page/${pageNum}?${params.toString()}`;
+}
+
+const prevUrl = currentPage > 1 ? getPageUrl(currentPage - 1) : null;
+const nextUrl = currentPage < totalPages ? getPageUrl(currentPage + 1) : null;
+---
+
+<BaseLayout title="Home — ekelola">
+	<h1 class="text-2xl font-bold mb-6">Latest posts</h1>
+	<form method="get" class="mb-4">
+		<label for="pageSize" class="mr-2">Posts per page:</label>
+		<select id="pageSize" name="pageSize" onchange="this.form.submit()" value={pageSize}>
+			{pageSizeOptions.map(opt => <option value={opt} selected={opt === pageSize}>{opt}</option>)}
+		</select>
+	</form>
+
+	<div class="grid gap-8">
+		{paginatedPosts.map(post => <PostCard post={post} />)}
+	</div>
+
+	<nav class="flex justify-between mt-8">
+		{prevUrl ? <a href={prevUrl} class="btn">Previous</a> : <span />}
+		<span>Page {currentPage} of {totalPages}</span>
+		{nextUrl ? <a href={nextUrl} class="btn">Next</a> : <span />}
+	</nav>
+</BaseLayout>

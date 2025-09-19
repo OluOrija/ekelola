@@ -1,0 +1,37 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { getAllPosts, normalizeSlug, slugifyTag } from "../../lib/content";
+const { slug } = Astro.params;
+const posts = await getAllPosts();
+const post = posts.find((p) => normalizeSlug(p) === slug.join("/"));
+if (!post) throw new Error("Not found");
+
+// Find main tag for breadcrumbs (first tag, slugified)
+const mainTag = post.data.tags && post.data.tags.length > 0 ? slugifyTag(post.data.tags[0]) : undefined;
+
+// Find previous/next post (same tag preferred, else chronological)
+let prev, next;
+const tag = post.data.tags && post.data.tags.length > 0 ? post.data.tags[0] : undefined;
+const sameTagPosts = tag ? posts.filter(p => p !== post && p.data.tags.includes(tag)) : [];
+const sorted = (sameTagPosts.length > 0 ? sameTagPosts : posts).sort((a, b) => +new Date(a.data.date) - +new Date(b.data.date));
+const idx = sorted.findIndex(p => normalizeSlug(p) === normalizeSlug(post));
+if (idx > 0) prev = sorted[idx - 1];
+if (idx < sorted.length - 1) next = sorted[idx + 1];
+---
+<BaseLayout title={post.data.title} description={post.data.description} canonical={post.data.canonical}>
+  <article>
+    <Breadcrumbs post={post} tag={mainTag} />
+    <h1>{post.data.title}</h1>
+    <p>{new Date(post.data.date).toLocaleDateString()}</p>
+    <div innerHTML={post.body} />
+    <nav class="flex justify-between mt-8">
+      {prev && (
+        <a href={`/blog/${normalizeSlug(prev)}`} class="text-blue-600 hover:underline">&larr; {prev.data.title}</a>
+      )}
+      {next && (
+        <a href={`/blog/${normalizeSlug(next)}`} class="text-blue-600 hover:underline">{next.data.title} &rarr;</a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>

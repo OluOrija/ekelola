@@ -1,0 +1,12 @@
+---
+// Props: { post, tag } (tag optional)
+const { post, tag } = Astro.props;
+---
+<nav aria-label="Breadcrumb" class="text-sm mb-4">
+  <ol class="list-none p-0 inline-flex">
+    <li><a href="/">Home</a> &gt; </li>
+    <li><a href="/blog">Blog</a> &gt; </li>
+    {tag && <li><a href={`/tags/${tag}`}>{tag}</a> &gt; </li>}
+    <li aria-current="page">{post.data.title}</li>
+  </ol>
+</nav>

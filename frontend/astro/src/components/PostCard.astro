@@ -9,4 +9,13 @@ const { data, slug } = post;
   </h2>
   <p class="text-sm text-zinc-600">{new Date(data.date).toLocaleDateString()}</p>
   <p>{data.description}</p>
+    {data.coverImage && (
+    <img
+      src={data.coverImage.src.replace(/^\.\.\/\.\.\/images\//, '/images/')}
+      width={data.coverImage.width}
+      height={data.coverImage.height}
+      alt={data.coverImage.alt || data.title}
+      style="max-width:100%;height:auto;border-radius:0.5rem;"
+    />
+  )}
 </article>
